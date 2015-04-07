@@ -1,6 +1,6 @@
 var map;
 
-require(["esri/map","esri/SpatialReference", "esri/geometry/Extent","esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol", "esri/Color","esri/symbols/SimpleMarkerSymbol","dojo/on","dojo/dom", "dojo/domReady!"], function(Map, spatialReference, Extent, SimpleFillSymbol,SimpleLineSymbol, Color, SimpleMarkerSymbol,on, dom) {
+require(["esri/map","esri/SpatialReference", "esri/geometry/Extent","esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol", "esri/Color","esri/symbols/SimpleMarkerSymbol","esri/geometry/jsonUtils","dojo/on","dojo/dom", "dojo/domReady!"], function(Map, spatialReference, Extent, SimpleFillSymbol,SimpleLineSymbol, Color, SimpleMarkerSymbol,geometryJsonUtils, on, dom) {
 map = new Map("map", {
   basemap: "topo",  
   center:[73.1096,19.1025],
@@ -26,16 +26,41 @@ var sms=new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 5,
     new Color([5, 0, 255]), 1),
     new Color([0,255,0,0.25]));
 
+var input_text=dom.byId("text");
 
 
 //Click Events
 var Clear_btn = dom.byId("Clr_input"),add_btn = dom.byId("Add_input");
  on(Clear_btn, "click", function(evt){
-            console.log("inClear");
+            input_text.value = "";
         });
 		
  on(add_btn, "click", function(evt){
-            console.log("inAdd");
+            var txt=input_text.value ;
+			if(IsJsonString(txt)){
+				var obj=JSON.parse(txt);
+				//try to convert to geometry
+				var geom=geometryJsonUtils.fromJson(obj);
+				if(geom){
+					console.dir(geom);
+				}else{
+					ParseErrorMessage();
+				}
+			}else{
+				ParseErrorMessage();
+			}
         });
 
+function ParseErrorMessage(){
+	alert("Sorry! I couldn't parse this text");
+}
+		
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}		
 });
