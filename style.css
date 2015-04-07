@@ -9,3 +9,20 @@ background-color: #FFF;
 overflow: hidden;
 font-family: "Trebuchet MS";
 }
+
+
+#sideBar {
+  width: 30%;
+  height: 100%;
+  position: absolute;
+  left: 20px;
+  z-index: 1000;
+  padding-top:95px;
+  margin-left:20px;
+}
+
+#text{
+  height: 300px;
+  width: 80%;
+  
+}
