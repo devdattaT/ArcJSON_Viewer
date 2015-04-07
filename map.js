@@ -34,10 +34,15 @@ var sms=new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 5,
 var input_text=dom.byId("text");
 
 
-//Click Events
-var Clear_btn = dom.byId("Clr_input"),add_btn = dom.byId("Add_input");
+//Click Events 
+var Clear_btn = dom.byId("Clr_input"),add_btn = dom.byId("Add_input"), clr_all_btn = dom.byId("Clr_all");
  on(Clear_btn, "click", function(evt){
             input_text.value = "";
+        }); 
+		
+on(clr_all_btn, "click", function(evt){
+            input_text.value = "";
+			allGraphicsLayer.clear();
         });
 		
  on(add_btn, "click", function(evt){
