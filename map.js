@@ -1,13 +1,18 @@
 var map;
 
-require(["esri/map","esri/SpatialReference", "esri/geometry/Extent","esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol", "esri/Color","esri/symbols/SimpleMarkerSymbol","esri/geometry/jsonUtils","dojo/on","dojo/dom", "dojo/domReady!"], function(Map, spatialReference, Extent, SimpleFillSymbol,SimpleLineSymbol, Color, SimpleMarkerSymbol,geometryJsonUtils, on, dom) {
+require(["esri/map","esri/SpatialReference", "esri/geometry/Extent","esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol", "esri/Color","esri/symbols/SimpleMarkerSymbol","esri/geometry/jsonUtils","esri/layers/GraphicsLayer","esri/geometry/webMercatorUtils","esri/graphic","dojo/on","dojo/dom", "dojo/domReady!"], function(Map, spatialReference, Extent, SimpleFillSymbol,SimpleLineSymbol, Color, SimpleMarkerSymbol,geometryJsonUtils,GraphicsLayer,webMercatorUtils, Graphic,on, dom) {
 map = new Map("map", {
   basemap: "topo",  
   center:[73.1096,19.1025],
   zoom: 9
 });
+//initilise 2 graphics layers
+var allGraphicsLayer, selectedGraphicsLayer;
 map.on("load", function(event){
-	
+	 allGraphicsLayer = new GraphicsLayer();
+	  selectedGraphicsLayer = new GraphicsLayer();
+	  //add them
+	  map.addLayers([allGraphicsLayer, selectedGraphicsLayer]);
 });
 //symbols
 var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
@@ -43,6 +48,7 @@ var Clear_btn = dom.byId("Clr_input"),add_btn = dom.byId("Add_input");
 				var geom=geometryJsonUtils.fromJson(obj);
 				if(geom){
 					console.dir(geom);
+					addGeometry(geom);
 				}else{
 					ParseErrorMessage();
 				}
@@ -50,6 +56,51 @@ var Clear_btn = dom.byId("Clr_input"),add_btn = dom.byId("Add_input");
 				ParseErrorMessage();
 			}
         });
+
+function addGeometry(geom){
+	geom=getWMObject(geom);
+	 var graphic = new Graphic(geom);
+	var geomType=geom.type;
+	switch(geomType){
+		case "point":
+			graphic.setSymbol(sms);
+			break;
+		case "polyline":
+			graphic.setSymbol(sls);
+			break;
+		case "polygon":
+			graphic.setSymbol(sfs);
+			break;
+		
+	}
+	
+	//add to all Graphic Layer
+	allGraphicsLayer.add(graphic);
+	
+	//zoom to extent
+	map.setExtent(geom.getExtent());
+}		
+
+function getWMObject(geom){
+	//get the spatial reference
+	var sr=geom.spatialReference;
+	if(!sr){
+		//assume that we have a Geographic Lat long geometry
+		geom.setSpatialReference(new SpatialReference(4326));
+		sr=new SpatialReference(4326);
+	}
+	//return Web mercator Geometry if it EPSG:4326
+	if(sr.wkid===4326){
+		return webMercatorUtils.geographicToWebMercator(geom);
+	}
+	
+	//return if it web mercator
+	if(sr.wkid===102100){
+		return geom;
+	}
+	
+}
+
 
 function ParseErrorMessage(){
 	alert("Sorry! I couldn't parse this text");
