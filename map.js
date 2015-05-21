@@ -1,6 +1,6 @@
 var map;
 
-require(["esri/map","esri/SpatialReference", "esri/geometry/Extent","esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol", "esri/Color","esri/symbols/SimpleMarkerSymbol","esri/geometry/jsonUtils","esri/layers/GraphicsLayer","esri/geometry/webMercatorUtils","esri/graphic","dojo/on","dojo/dom", "dojo/domReady!"], function(Map, spatialReference, Extent, SimpleFillSymbol,SimpleLineSymbol, Color, SimpleMarkerSymbol,geometryJsonUtils,GraphicsLayer,webMercatorUtils, Graphic,on, dom) {
+require(["esri/map","esri/SpatialReference", "esri/geometry/Polygon","esri/geometry/Extent","esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol", "esri/Color","esri/symbols/SimpleMarkerSymbol","esri/geometry/jsonUtils","esri/layers/GraphicsLayer","esri/geometry/webMercatorUtils","esri/graphic","dojo/on","dojo/dom", "dojo/domReady!"], function(Map, spatialReference,poly, Extent, SimpleFillSymbol,SimpleLineSymbol, Color, SimpleMarkerSymbol,geometryJsonUtils,GraphicsLayer,webMercatorUtils, Graphic,on, dom) {
 map = new Map("map", {
   basemap: "topo",  
   center:[73.1096,19.1025],
@@ -76,14 +76,16 @@ function addGeometry(geom){
 		case "polygon":
 			graphic.setSymbol(sfs);
 			break;
-		
+		case "extent":
+			graphic.setGeometry(poly.fromExtent(geom));
+			graphic.setSymbol(sfs);	
 	}
 	
 	//add to all Graphic Layer
 	allGraphicsLayer.add(graphic);
 	
 	//zoom to extent
-	map.setExtent(geom.getExtent());
+	map.setExtent(geom.getExtent().expand(2));
 }		
 
 function getWMObject(geom){
