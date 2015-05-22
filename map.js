@@ -87,7 +87,13 @@ function addGeometry(geom){
 	//zoom to extent
 	map.setExtent(geom.getExtent().expand(2));
 }		
-
+var txtPresent=true; 
+on(input_text, "click", function(evt){
+            if(txtPresent){
+				input_text.value = "";
+				txtPresent=false;
+			}
+        }); 
 function getWMObject(geom){
 	//get the spatial reference
 	var sr=geom.spatialReference;
